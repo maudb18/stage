@@ -203,7 +203,8 @@ for padded_smiles in padded_smis:
     onehot_encoded_list.append(onehot_encoded)
 
 mat = onehot_encoded_list[0]
+print(mat)
 
-print(len(onehot_encoded_list), onehot_encoded_list[0])
+'''print(len(onehot_encoded_list), onehot_encoded_list[0])
 print(mat.shape)
-print(max_length, len(padded_smis))
+print(max_length, len(padded_smis))'''
