@@ -5,17 +5,20 @@ import numpy as np
 import pandas as pd
 
 
-
+#récupération des chaînes de caractères (smiles format str) dans la liste "data"
 r = requests.get('https://raw.githubusercontent.com/aspuru-guzik-group/selfies/master/examples/vae_example/datasets/dataJ_250k_rndm_zinc_drugs_clean.txt')
-
-
 data = r.text.split('\n')[:-1]
 
+#initialisation des éléments que l'on va rechercher
 elem = ['C', 'N', 'O'#, 'H'
         ]
 
+#initialisation de la liste "filtre" dans laquelle on va ajouter les molécules qui répondent à la condition
 filtre = []
 
+#itération sur les molécules de la liste "data"
+#pour ne récupérer que celles qui contiennent tous les éléments de la liste elem
+#et uniquement ceux-là
 for S in data:
     mol = Chem.MolFromSmiles(S)
     atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
@@ -28,11 +31,10 @@ for S in data:
         filtre.append(mol)
 
 
-
+#on insert les smiles filtrés dans un dataframe
 df = pd.DataFrame({'smiles': filtre[:5]})
 #print(df.head())
 df['smiles'] = df['smiles'].apply(Chem.MolToSmiles)
-#unique_char = set(df.smiles.apply(list).sum())
 unique_char = list(set(df.smiles.apply(list).sum()))
 #print(f"All unique characters found in the preprocessed data set:\n{sorted(unique_char)}")
 
@@ -67,6 +69,8 @@ def initial_padding(smiles, max_len):
 
 padded_smis=[]
 
+#on boucle sur les 10 premiers smiles de la liste "filtre"
+#pour appliquer le padding sur chacun
 for smi in filtre[:10]:
     res = initial_padding(smiles=Chem.MolToSmiles(smi), max_len=max_length)
     padded_smis.append(res)
@@ -189,9 +193,10 @@ def sklearn_one_hot_encoded_matrix(
     return onehot_encoded
 
 
-
+#initialisation de la liste dans laquelle on va ajouter les smiles encodés sous forme de matrice
 onehot_encoded_list = []
 
+#on applique la fonction d'encodage sur chacun des padded smiles
 for padded_smiles in padded_smis:
     onehot_encoded = sklearn_one_hot_encoded_matrix(
         smiles=padded_smiles,
@@ -202,9 +207,11 @@ for padded_smiles in padded_smis:
     )
     onehot_encoded_list.append(onehot_encoded)
 
+#impression du premier smiles pour vérifier le format
 mat = onehot_encoded_list[0]
 print(mat)
 
+#on vérifie que la taille de la matrice mat est cohérente
 '''print(len(onehot_encoded_list), onehot_encoded_list[0])
 print(mat.shape)
 print(max_length, len(padded_smis))'''
